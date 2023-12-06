@@ -7,6 +7,7 @@ import {
 import pLimit from 'next/dist/compiled/p-limit'
 import { Worker } from 'next/dist/compiled/jest-worker'
 import { spans } from '../../profiling-plugin'
+import { COMPILER_NAMES } from '../../../../../shared/lib/constants'
 
 function getEcmaVersion(environment: any) {
   // ES 6th
@@ -51,12 +52,13 @@ const debugMinify = process.env.NEXT_DEBUG_MINIFY
 export class TerserPlugin {
   options: any
   constructor(options: any = {}) {
-    const { terserOptions = {}, parallel, swcMinify } = options
+    const { terserOptions = {}, parallel, swcMinify, compilerType } = options
 
     this.options = {
       swcMinify,
       parallel,
       terserOptions,
+      compilerType,
     }
   }
 
@@ -158,7 +160,8 @@ export class TerserPlugin {
               const result = await require('../../../../swc').minify(
                 options.input,
                 {
-                  ...(options.inputSourceMap
+                  ...(options.inputSourceMap &&
+                  this.options.compilerType !== COMPILER_NAMES.edgeServer
                     ? {
                         sourceMap: {
                           content: JSON.stringify(options.inputSourceMap),
