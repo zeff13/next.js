@@ -938,11 +938,10 @@ export default async function build(
         preview: previewProps,
       }
 
+      const PRERENDER_MANIFEST_JS = PRERENDER_MANIFEST.replace(/\.json$/, '.js')
       await fs.writeFile(
-        path.join(distDir, PRERENDER_MANIFEST).replace(/\.json$/, '.js'),
-        `self.__PRERENDER_MANIFEST=${JSON.stringify(
-          JSON.stringify(partialManifest)
-        )}`,
+        path.join(distDir, PRERENDER_MANIFEST_JS),
+        `self.__PRERENDER_MANIFEST=${JSON.stringify(partialManifest)}`,
         'utf8'
       )
 
@@ -986,7 +985,7 @@ export default async function build(
             path.relative(distDir, pagesManifestPath),
             BUILD_MANIFEST,
             PRERENDER_MANIFEST,
-            PRERENDER_MANIFEST.replace(/\.json$/, '.js'),
+            PRERENDER_MANIFEST_JS,
             path.join(SERVER_DIRECTORY, MIDDLEWARE_MANIFEST),
             path.join(SERVER_DIRECTORY, MIDDLEWARE_BUILD_MANIFEST + '.js'),
             path.join(
@@ -2871,13 +2870,19 @@ export default async function build(
             prefetchDataRouteRegex: undefined,
           }
         })
-        const prerenderManifest: Readonly<PrerenderManifest> = {
+        const edgePrerenderManifest: Readonly<
+          Omit<PrerenderManifest, 'preview'>
+        > = {
           version: 4,
           routes: finalPrerenderRoutes,
           dynamicRoutes: finalDynamicRoutes,
           notFoundRoutes: ssgNotFoundPaths,
+        }
+        const prerenderManifest: Readonly<PrerenderManifest> = {
+          ...edgePrerenderManifest,
           preview: previewProps,
         }
+
         NextBuildContext.previewModeId = previewProps.previewModeId
         NextBuildContext.fetchCacheKeyPrefix =
           config.experimental.fetchCacheKeyPrefix
@@ -2885,15 +2890,13 @@ export default async function build(
           config.experimental.allowedRevalidateHeaderKeys
 
         await fs.writeFile(
-          path.join(distDir, PRERENDER_MANIFEST),
-          formatManifest(prerenderManifest),
+          path.join(distDir, PRERENDER_MANIFEST_JS),
+          `self.__PRERENDER_MANIFEST=${JSON.stringify(edgePrerenderManifest)}`,
           'utf8'
         )
         await fs.writeFile(
-          path.join(distDir, PRERENDER_MANIFEST).replace(/\.json$/, '.js'),
-          `self.__PRERENDER_MANIFEST=${JSON.stringify(
-            JSON.stringify(prerenderManifest)
-          )}`,
+          path.join(distDir, PRERENDER_MANIFEST),
+          formatManifest(prerenderManifest),
           'utf8'
         )
         await generateClientSsgManifest(prerenderManifest, {
@@ -2902,23 +2905,27 @@ export default async function build(
           locales: config.i18n?.locales || [],
         })
       } else {
-        const prerenderManifest: Readonly<PrerenderManifest> = {
+        const edgePrerenderManifest: Readonly<
+          Omit<PrerenderManifest, 'preview'>
+        > = {
           version: 4,
           routes: {},
           dynamicRoutes: {},
-          preview: previewProps,
           notFoundRoutes: [],
         }
+        const prerenderManifest: Readonly<PrerenderManifest> = {
+          ...edgePrerenderManifest,
+          preview: previewProps,
+        }
+
         await fs.writeFile(
-          path.join(distDir, PRERENDER_MANIFEST),
-          formatManifest(prerenderManifest),
+          path.join(distDir, PRERENDER_MANIFEST_JS),
+          `self.__PRERENDER_MANIFEST=${JSON.stringify(edgePrerenderManifest)}`,
           'utf8'
         )
         await fs.writeFile(
-          path.join(distDir, PRERENDER_MANIFEST).replace(/\.json$/, '.js'),
-          `self.__PRERENDER_MANIFEST=${JSON.stringify(
-            JSON.stringify(prerenderManifest)
-          )}`,
+          path.join(distDir, PRERENDER_MANIFEST),
+          formatManifest(prerenderManifest),
           'utf8'
         )
       }

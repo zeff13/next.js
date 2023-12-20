@@ -766,10 +766,11 @@ async function startWatcher(opts: SetupOpts) {
       manifests: Iterable<TurbopackMiddlewareManifest>
     ): MiddlewareManifest {
       const manifest: MiddlewareManifest = {
-        version: 2,
+        version: 3,
         middleware: {},
         sortedMiddleware: [],
         functions: {},
+        injectedEnvs: {},
       }
       let instrumentation: InstrumentationDefinition | undefined = undefined
       for (const m of manifests) {

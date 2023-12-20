@@ -90,8 +90,8 @@ export async function adapter(
   // TODO-APP: use explicit marker for this
   const isEdgeRendering = typeof self.__BUILD_MANIFEST !== 'undefined'
   const prerenderManifest: PrerenderManifest | undefined =
-    typeof self.__PRERENDER_MANIFEST === 'string'
-      ? JSON.parse(self.__PRERENDER_MANIFEST)
+    typeof self.__PRERENDER_MANIFEST === 'object'
+      ? self.__PRERENDER_MANIFEST
       : undefined
 
   params.request.url = normalizeRscURL(params.request.url)

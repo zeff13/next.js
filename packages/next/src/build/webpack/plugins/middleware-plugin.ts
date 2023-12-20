@@ -44,10 +44,11 @@ export interface EdgeFunctionDefinition {
 }
 
 export interface MiddlewareManifest {
-  version: 2
+  version: 3
   sortedMiddleware: string[]
   middleware: { [page: string]: EdgeFunctionDefinition }
   functions: { [page: string]: EdgeFunctionDefinition }
+  injectedEnvs: { [key: string]: string }
 }
 
 interface EntryMetadata {
@@ -150,11 +151,19 @@ function getCreateAssets(params: {
 }) {
   const { compilation, metadataByEntry, opts } = params
   return (assets: any) => {
+    const previewProps = NextBuildContext.previewProps!
+    console.log('previewProps', previewProps)
     const middlewareManifest: MiddlewareManifest = {
+      version: 3,
       sortedMiddleware: [],
       middleware: {},
       functions: {},
-      version: 2,
+      injectedEnvs: {
+        __NEXT_PREVIEW_MODE_ID: previewProps.previewModeId,
+        __NEXT_PREVIEW_MODE_SIGNING_KEY: previewProps.previewModeSigningKey,
+        __NEXT_PREVIEW_MODE_ENCRYPTION_KEY:
+          previewProps.previewModeEncryptionKey,
+      },
     }
     for (const entrypoint of compilation.entrypoints.values()) {
       if (!entrypoint.name) {

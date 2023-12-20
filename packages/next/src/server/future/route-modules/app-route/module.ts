@@ -257,7 +257,13 @@ export class AppRouteRouteModule extends RouteModule<
 
     // TODO: types for renderOpts should include previewProps
     ;(requestContext as any).renderOpts = {
-      previewProps: context.prerenderManifest.preview,
+      // previewProps: context.prerenderManifest.preview
+      previewProps: {
+        previewModeId: process.env.__NEXT_PREVIEW_MODE_ID,
+        previewModeSigningKey: process.env.__NEXT_PREVIEW_MODE_SIGNING_KEY,
+        previewModeEncryptionKey:
+          process.env.__NEXT_PREVIEW_MODE_ENCRYPTION_KEY,
+      },
     }
 
     // Get the context for the static generation.

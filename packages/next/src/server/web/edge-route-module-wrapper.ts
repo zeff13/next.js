@@ -83,8 +83,8 @@ export class EdgeRouteModuleWrapper {
     )
 
     const prerenderManifest: PrerenderManifest | undefined =
-      typeof self.__PRERENDER_MANIFEST === 'string'
-        ? JSON.parse(self.__PRERENDER_MANIFEST)
+      typeof self.__PRERENDER_MANIFEST === 'object'
+        ? self.__PRERENDER_MANIFEST
         : undefined
 
     // Create the context for the handler. This contains the params from the

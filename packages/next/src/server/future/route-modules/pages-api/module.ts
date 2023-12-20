@@ -125,13 +125,18 @@ export class PagesAPIRouteModule extends RouteModule<
     res: ServerResponse,
     context: PagesAPIRouteHandlerContext
   ): Promise<void> {
+    const previewProps: __ApiPreviewProps = {
+      previewModeId: process.env.__NEXT_PREVIEW_MODE_ID!,
+      previewModeSigningKey: process.env.__NEXT_PREVIEW_MODE_SIGNING_KEY!,
+      previewModeEncryptionKey: process.env.__NEXT_PREVIEW_MODE_ENCRYPTION_KEY!,
+    }
     await apiResolver(
       req,
       res,
       context.query,
       this.userland,
       {
-        ...context.previewProps,
+        ...previewProps,
         revalidate: context.revalidate,
         trustHostHeader: context.trustHostHeader,
         allowedRevalidateHeaderKeys: context.allowedRevalidateHeaderKeys,
