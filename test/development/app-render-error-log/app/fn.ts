@@ -2,6 +2,14 @@ function fn2() {
   throw new Error('boom')
 }
 
-export function fn1() {
+function beforeExport() {
   fn2()
+}
+
+export function fn1() {
+  afterExport()
+}
+
+function afterExport() {
+  beforeExport()
 }
