@@ -2518,6 +2518,7 @@ async function startWatcher(opts: SetupOpts) {
     let usedOriginalStack = false
 
     if (isError(err) && err.stack) {
+      console.log('err.stack', err.stack)
       try {
         const frames = parseStack(err.stack!)
         // Filter out internal edge related runtime stack
@@ -2529,6 +2530,7 @@ async function startWatcher(opts: SetupOpts) {
             !file?.includes('sandbox/context') &&
             !file?.includes('<anonymous>')
         )
+        console.log('frame', frame, 'frames', frames)
 
         let originalFrame, isEdgeCompiler
         const frameFile = frame?.file
@@ -2594,6 +2596,16 @@ async function startWatcher(opts: SetupOpts) {
           if (originalFrame) {
             const { originalCodeFrame, originalStackFrame } = originalFrame
             const { file, lineNumber, column, methodName } = originalStackFrame
+            console.log(
+              'type',
+              type,
+              'originalCodeFrame',
+              originalCodeFrame,
+              'originalStackFrame',
+              originalStackFrame,
+              'err',
+              err
+            )
 
             Log[type === 'warning' ? 'warn' : 'error'](
               `${file} (${lineNumber}:${column}) @ ${methodName}`
