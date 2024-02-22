@@ -1378,29 +1378,34 @@ export default async function build(
         const startTime = process.hrtime()
         const bindings = await loadBindings(config?.experimental?.useWasmBinary)
         const dev = false
-        const project = await bindings.turbo.createProject({
-          projectPath: dir,
-          rootPath: config.experimental.outputFileTracingRoot || dir,
-          nextConfig: config,
-          jsConfig: await getTurbopackJsConfig(dir, config),
-          watch: false,
-          dev,
-          env: process.env as Record<string, string>,
-          defineEnv: createDefineEnv({
-            isTurbopack: true,
-            clientRouterFilters: NextBuildContext.clientRouterFilters,
-            config,
+        const project = await bindings.turbo.createProject(
+          {
+            projectPath: dir,
+            rootPath: config.experimental.outputFileTracingRoot || dir,
+            nextConfig: config,
+            jsConfig: await getTurbopackJsConfig(dir, config),
+            watch: false,
             dev,
-            distDir,
-            fetchCacheKeyPrefix: config.experimental.fetchCacheKeyPrefix,
-            hasRewrites,
-            // TODO: Implement
-            middlewareMatchers: undefined,
-          }),
-          buildId: NextBuildContext.buildId!,
-          encryptionKey: NextBuildContext.encryptionKey!,
-          previewProps: NextBuildContext.previewProps!,
-        })
+            env: process.env as Record<string, string>,
+            defineEnv: createDefineEnv({
+              isTurbopack: true,
+              clientRouterFilters: NextBuildContext.clientRouterFilters,
+              config,
+              dev,
+              distDir,
+              fetchCacheKeyPrefix: config.experimental.fetchCacheKeyPrefix,
+              hasRewrites,
+              // TODO: Implement
+              middlewareMatchers: undefined,
+            }),
+            buildId: NextBuildContext.buildId!,
+            encryptionKey: NextBuildContext.encryptionKey!,
+            previewProps: NextBuildContext.previewProps!,
+          },
+          {
+            memoryLimit: 10 * 1024 * 1024 * 1024,
+          }
+        )
 
         await fs.mkdir(path.join(distDir, 'server'), { recursive: true })
         await fs.mkdir(path.join(distDir, 'static', buildId), {
@@ -1923,18 +1928,18 @@ export default async function build(
           config.experimental.gzipSize
         )
 
-        const middlewareManifest: MiddlewareManifest = require(
-          path.join(distDir, SERVER_DIRECTORY, MIDDLEWARE_MANIFEST)
-        )
+        const middlewareManifest: MiddlewareManifest = require(path.join(
+          distDir,
+          SERVER_DIRECTORY,
+          MIDDLEWARE_MANIFEST
+        ))
 
         const actionManifest = appDir
-          ? (require(
-              path.join(
-                distDir,
-                SERVER_DIRECTORY,
-                SERVER_REFERENCE_MANIFEST + '.json'
-              )
-            ) as ActionManifest)
+          ? (require(path.join(
+              distDir,
+              SERVER_DIRECTORY,
+              SERVER_REFERENCE_MANIFEST + '.json'
+            )) as ActionManifest)
           : null
         const entriesWithAction = actionManifest ? new Set() : null
         if (actionManifest && entriesWithAction) {
@@ -3300,8 +3305,8 @@ export default async function build(
             fallback: ssgBlockingFallbackPages.has(tbdRoute)
               ? null
               : ssgStaticFallbackPages.has(tbdRoute)
-                ? `${normalizedRoute}.html`
-                : false,
+              ? `${normalizedRoute}.html`
+              : false,
             dataRouteRegex: normalizeRouteRegex(
               getNamedRouteRegex(
                 dataRoute.replace(/\.json$/, ''),
