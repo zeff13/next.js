@@ -1403,7 +1403,7 @@ export default async function build(
             previewProps: NextBuildContext.previewProps!,
           },
           {
-            memoryLimit: 10 * 1024 * 1024 * 1024,
+            memoryLimit: 5 * 1024 * 1024 * 1024,
           }
         )
 
