@@ -3,8 +3,11 @@
 import React, { useContext } from 'react'
 import { usePathname } from './navigation'
 import { isNotFoundError } from './not-found'
-import { warnOnce } from '../../shared/lib/utils/warn-once'
 import { MissingSlotContext } from '../../shared/lib/app-router-context.shared-runtime'
+import {
+  PARALLEL_ROUTE_ERROR,
+  createNextjsWarningCustomError,
+} from './next-warning-custom-error'
 
 interface NotFoundBoundaryProps {
   notFound?: React.ReactNode
@@ -54,7 +57,12 @@ class NotFoundErrorBoundary extends React.Component<
         warningMessage += 'Missing slots: ' + formattedSlots
       }
 
-      warnOnce(warningMessage)
+      const error = createNextjsWarningCustomError({
+        message: warningMessage,
+        title: 'Parallel Route Error',
+        digest: PARALLEL_ROUTE_ERROR,
+      })
+      throw error
     }
   }
 

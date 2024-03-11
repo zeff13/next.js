@@ -28,11 +28,29 @@ import {
   type HydrationErrorState,
   getHydrationWarningType,
 } from '../helpers/hydration-error-info'
+import {
+  getNextjsWarningTitle,
+  isSimpleNextjsWarningError,
+} from '../../../next-warning-custom-error'
 
 export type SupportedErrorEvent = {
   id: number
   event: UnhandledErrorAction | UnhandledRejectionAction
 }
+
+export function createSupportedErrorEventFromError(
+  error: Error
+): SupportedErrorEvent {
+  return {
+    id: 0,
+    event: {
+      type: ACTION_UNHANDLED_ERROR,
+      reason: error,
+      frames: [],
+    },
+  }
+}
+
 export type ErrorsProps = {
   isAppDir: boolean
   errors: SupportedErrorEvent[]
@@ -240,6 +258,8 @@ export function Errors({
         .replace(/^Warning: /, '')
     : null
 
+  const isSimpleError = isSimpleNextjsWarningError(error)
+
   return (
     <Overlay>
       <Dialog
@@ -266,7 +286,11 @@ export function Errors({
               {versionInfo ? <VersionStalenessInfo {...versionInfo} /> : null}
             </LeftRightDialogHeader>
             <h1 id="nextjs__container_errors_label">
-              {isServerError ? 'Server Error' : 'Unhandled Runtime Error'}
+              {isSimpleError
+                ? getNextjsWarningTitle(error)
+                : isServerError
+                ? 'Server Error'
+                : 'Unhandled Runtime Error'}
             </h1>
             <p
               id="nextjs__container_errors_desc"
@@ -303,9 +327,14 @@ export function Errors({
               </div>
             ) : undefined}
           </DialogHeader>
-          <DialogBody className="nextjs-container-errors-body">
-            <RuntimeError key={activeError.id.toString()} error={activeError} />
-          </DialogBody>
+          {!isSimpleError ? (
+            <DialogBody className="nextjs-container-errors-body">
+              <RuntimeError
+                key={activeError.id.toString()}
+                runtimeError={activeError}
+              />
+            </DialogBody>
+          ) : null}
         </DialogContent>
       </Dialog>
     </Overlay>

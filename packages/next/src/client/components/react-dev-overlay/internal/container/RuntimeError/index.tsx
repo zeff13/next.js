@@ -5,12 +5,12 @@ import { noop as css } from '../../helpers/noop-template'
 import { groupStackFramesByFramework } from '../../helpers/group-stack-frames-by-framework'
 import { GroupedStackFrames } from './GroupedStackFrames'
 
-export type RuntimeErrorProps = { error: ReadyRuntimeError }
+export type RuntimeErrorProps = { runtimeError: ReadyRuntimeError }
 
-export function RuntimeError({ error }: RuntimeErrorProps) {
+export function RuntimeError({ runtimeError }: RuntimeErrorProps) {
   const { firstFrame, allLeadingFrames, allCallStackFrames } =
     React.useMemo(() => {
-      const filteredFrames = error.frames.filter(
+      const filteredFrames = runtimeError.frames.filter(
         (f) =>
           !(
             f.sourceStackFrame.file === '<anonymous>' &&
@@ -33,7 +33,7 @@ export function RuntimeError({ error }: RuntimeErrorProps) {
             : filteredFrames.slice(0, firstFirstPartyFrameIndex),
         allCallStackFrames: filteredFrames.slice(firstFirstPartyFrameIndex + 1),
       }
-    }, [error.frames])
+    }, [runtimeError.frames])
 
   const [all, setAll] = React.useState(firstFrame == null)
 

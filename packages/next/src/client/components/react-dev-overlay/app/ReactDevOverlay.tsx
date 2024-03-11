@@ -3,14 +3,36 @@ import { ACTION_UNHANDLED_ERROR, type OverlayState } from '../shared'
 
 import { ShadowPortal } from '../internal/components/ShadowPortal'
 import { BuildError } from '../internal/container/BuildError'
-import { Errors } from '../internal/container/Errors'
+import {
+  Errors,
+  createSupportedErrorEventFromError,
+} from '../internal/container/Errors'
 import type { SupportedErrorEvent } from '../internal/container/Errors'
 import { parseStack } from '../internal/helpers/parseStack'
 import { Base } from '../internal/styles/Base'
 import { ComponentStyles } from '../internal/styles/ComponentStyles'
 import { CssReset } from '../internal/styles/CssReset'
-import { RootLayoutMissingTagsError } from '../internal/container/root-layout-missing-tags-error'
+// import { RootLayoutMissingTagsError } from '../internal/container/root-layout-missing-tags-error'
+import {
+  MISSING_HTML_TAGS,
+  createNextjsWarningCustomError,
+} from '../../next-warning-custom-error'
 
+function createMissingHtmlTagsError(
+  missingTags: string[]
+): SupportedErrorEvent {
+  return createSupportedErrorEventFromError(
+    createNextjsWarningCustomError({
+      message: `The following tags are missing in the Root Layout: ${missingTags
+        .map((tagName) => `<${tagName}>`)
+        .join(
+          ', '
+        )}.\nRead more at https://nextjs.org/docs/messages/missing-root-layout-tags`,
+      title: 'Missing HTML Tags',
+      digest: MISSING_HTML_TAGS,
+    })
+  )
+}
 interface ReactDevOverlayState {
   reactError: SupportedErrorEvent | null
 }
@@ -68,8 +90,13 @@ export default class ReactDevOverlay extends React.PureComponent<
             <Base />
             <ComponentStyles />
             {state.rootLayoutMissingTags?.length ? (
-              <RootLayoutMissingTagsError
-                missingTags={state.rootLayoutMissingTags}
+              <Errors
+                isAppDir
+                versionInfo={state.versionInfo}
+                initialDisplayState="fullscreen"
+                errors={[
+                  createMissingHtmlTagsError(state.rootLayoutMissingTags),
+                ]}
               />
             ) : hasBuildError ? (
               <BuildError
@@ -78,14 +105,14 @@ export default class ReactDevOverlay extends React.PureComponent<
               />
             ) : reactError ? (
               <Errors
-                isAppDir={true}
+                isAppDir
                 versionInfo={state.versionInfo}
                 initialDisplayState="fullscreen"
                 errors={[reactError]}
               />
             ) : hasRuntimeErrors ? (
               <Errors
-                isAppDir={true}
+                isAppDir
                 initialDisplayState="minimized"
                 errors={state.errors}
                 versionInfo={state.versionInfo}
