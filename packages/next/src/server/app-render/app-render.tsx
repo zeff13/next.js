@@ -107,6 +107,7 @@ import {
   wrapClientComponentLoader,
 } from '../client-component-renderer-logger'
 import { createServerModuleMap } from './action-utils'
+import { isParallelRouteError } from '../../client/components/parallel-route-default'
 
 export type GetDynamicParamFromSegment = (
   // [slug] / [[slug]] / [...slug]
@@ -1155,6 +1156,12 @@ async function renderToHTMLOrFlightImpl(
         // can be handled by the caller if we're in static generation mode.
         if (isStaticGeneration && isDynamicServerError(err)) {
           throw err
+        }
+
+        if (isParallelRouteError(err)) {
+          throw new Error(
+            `A parallel route error occurred in route ${pagePath}:\n${err.message}`
+          )
         }
 
         // If a bailout made it to this point, it means it wasn't wrapped inside

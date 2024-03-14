@@ -1,4 +1,5 @@
 export type NextWarningCustomError = Error & {
+  digest: string
   details: {
     title: string
     digest: string
@@ -19,6 +20,7 @@ export function createNextjsWarningCustomError({
     title,
     digest,
   }
+  error.digest = digest
   return error
 }
 

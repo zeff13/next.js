@@ -38,33 +38,34 @@ class NotFoundErrorBoundary extends React.Component<
     }
   }
 
-  componentDidCatch(): void {
-    if (
-      process.env.NODE_ENV === 'development' &&
-      // A missing children slot is the typical not-found case, so no need to warn
-      !this.props.missingSlots.has('children')
-    ) {
-      let warningMessage =
-        'No default component was found for a parallel route rendered on this page. Falling back to nearest NotFound boundary.\n' +
-        'Learn more: https://nextjs.org/docs/app/building-your-application/routing/parallel-routes#defaultjs\n\n'
+  // TODO: collect missing slots in static generation store
+  // componentDidCatch(): void {
+  //   if (
+  //     process.env.NODE_ENV === 'development' &&
+  //     // A missing children slot is the typical not-found case, so no need to warn
+  //     !this.props.missingSlots.has('children')
+  //   ) {
+  //     let warningMessage =
+  //       'No default component was found for a parallel route rendered on this page. Falling back to nearest NotFound boundary.\n' +
+  //       'Learn more: https://nextjs.org/docs/app/building-your-application/routing/parallel-routes#defaultjs\n\n'
 
-      if (this.props.missingSlots.size > 0) {
-        const formattedSlots = Array.from(this.props.missingSlots)
-          .sort((a, b) => a.localeCompare(b))
-          .map((slot) => `@${slot}`)
-          .join(', ')
+  //     if (this.props.missingSlots.size > 0) {
+  //       const formattedSlots = Array.from(this.props.missingSlots)
+  //         .sort((a, b) => a.localeCompare(b))
+  //         .map((slot) => `@${slot}`)
+  //         .join(', ')
 
-        warningMessage += 'Missing slots: ' + formattedSlots
-      }
+  //       warningMessage += 'Missing slots: ' + formattedSlots
+  //     }
 
-      const error = createNextjsWarningCustomError({
-        message: warningMessage,
-        title: 'Parallel Route Error',
-        digest: PARALLEL_ROUTE_ERROR,
-      })
-      throw error
-    }
-  }
+  //     const error = createNextjsWarningCustomError({
+  //       message: warningMessage,
+  //       title: 'Parallel Route Error',
+  //       digest: PARALLEL_ROUTE_ERROR,
+  //     })
+  //     throw error
+  //   }
+  // }
 
   static getDerivedStateFromError(error: any) {
     if (isNotFoundError(error)) {
