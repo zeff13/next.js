@@ -1138,6 +1138,15 @@ async function renderToHTMLOrFlightImpl(
           }
         }
       } catch (err) {
+        if (isParallelRouteError(err)) {
+          const msg =
+            'No default component was found for a parallel route rendered on this page. Falling back to nearest NotFound boundary.\n' +
+            'Learn more: https://nextjs.org/docs/app/building-your-application/routing/parallel-routes#defaultjs\n\n' +
+            `Missing slots: ${Array.from(
+              staticGenerationStore.missingSlots || []
+            ).join(',')}`
+          throw new Error(msg)
+        }
         if (
           isStaticGenBailoutError(err) ||
           (typeof err === 'object' &&

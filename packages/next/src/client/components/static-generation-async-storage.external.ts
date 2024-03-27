@@ -17,6 +17,8 @@ export interface StaticGenerationStore {
   readonly isRevalidate?: boolean
   readonly isUnstableCacheCallback?: boolean
 
+  missingSlots?: Set<string>
+
   // When this exists (is not null) it means we are in a Prerender
   prerenderState: null | PrerenderState
 

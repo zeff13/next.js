@@ -40,7 +40,7 @@ export function createComponentTree(props: {
   asNotFound?: boolean
   metadataOutlet?: React.ReactNode
   ctx: AppRenderContext
-  missingSlots?: Set<string>
+  missingSlots: Set<string>
 }): Promise<ComponentTree> {
   return getTracer().trace(
     NextNodeServerSpan.createComponentTree,
@@ -76,7 +76,7 @@ async function createComponentTreeInternal({
   asNotFound?: boolean
   metadataOutlet?: React.ReactNode
   ctx: AppRenderContext
-  missingSlots?: Set<string>
+  missingSlots: Set<string>
 }): Promise<ComponentTree> {
   const {
     renderOpts: { nextConfigOutput, experimental },
@@ -264,6 +264,8 @@ async function createComponentTreeInternal({
     throw staticGenerationStore.dynamicUsageErr
   }
 
+  staticGenerationStore.missingSlots = missingSlots
+
   const LayoutOrPage: React.ComponentType<any> | undefined = layoutOrPageMod
     ? interopDefault(layoutOrPageMod)
     : undefined
@@ -272,41 +274,41 @@ async function createComponentTreeInternal({
    * The React Component to render.
    */
   let Component = LayoutOrPage
-  const parallelKeys = Object.keys(parallelRoutes)
-  const hasSlotKey = parallelKeys.length > 1
+  // const parallelKeys = Object.keys(parallelRoutes)
+  // const hasSlotKey = parallelKeys.length > 1
 
   // TODO-APP: This is a hack to support unmatched parallel routes, which will throw `notFound()`.
   // This ensures that a `NotFoundBoundary` is available for when that happens,
   // but it's not ideal, as it needlessly invokes the `NotFound` component and renders the `RootLayout` twice.
   // We should instead look into handling the fallback behavior differently in development mode so that it doesn't
   // rely on the `NotFound` behavior.
-  if (hasSlotKey && rootLayoutAtThisLevel && LayoutOrPage) {
-    Component = (componentProps: { params: Params }) => {
-      const NotFoundComponent = NotFound
-      const RootLayoutComponent = LayoutOrPage
-      return (
-        <NotFoundBoundary
-          notFound={
-            NotFoundComponent ? (
-              <>
-                {layerAssets}
-                {/*
-                 * We are intentionally only forwarding params to the root layout, as passing any of the parallel route props
-                 * might trigger `notFound()`, which is not currently supported in the root layout.
-                 */}
-                <RootLayoutComponent params={componentProps.params}>
-                  {notFoundStyles}
-                  <NotFoundComponent />
-                </RootLayoutComponent>
-              </>
-            ) : undefined
-          }
-        >
-          <RootLayoutComponent {...componentProps} />
-        </NotFoundBoundary>
-      )
-    }
-  }
+  // if (hasSlotKey && rootLayoutAtThisLevel && LayoutOrPage) {
+  //   Component = (componentProps: { params: Params }) => {
+  //     const NotFoundComponent = NotFound
+  //     const RootLayoutComponent = LayoutOrPage
+  //     return (
+  //       <NotFoundBoundary
+  //         notFound={
+  //           NotFoundComponent ? (
+  //             <>
+  //               {layerAssets}
+  //               {/*
+  //                * We are intentionally only forwarding params to the root layout, as passing any of the parallel route props
+  //                * might trigger `notFound()`, which is not currently supported in the root layout.
+  //                */}
+  //               <RootLayoutComponent params={componentProps.params}>
+  //                 {notFoundStyles}
+  //                 <NotFoundComponent />
+  //               </RootLayoutComponent>
+  //             </>
+  //           ) : undefined
+  //         }
+  //       >
+  //         <RootLayoutComponent {...componentProps} />
+  //       </NotFoundBoundary>
+  //     )
+  //   }
+  // }
 
   if (process.env.NODE_ENV === 'development') {
     const { isValidElementType } = require('next/dist/compiled/react-is')
@@ -420,7 +422,10 @@ async function createComponentTreeInternal({
         } else {
           // Create the child component
 
-          if (process.env.NODE_ENV === 'development' && missingSlots) {
+          if (
+            // process.env.NODE_ENV === 'development' &&
+            missingSlots
+          ) {
             // When we detect the default fallback (which triggers a 404), we collect the missing slots
             // to provide more helpful debug information during development mode.
             const parsedTree = parseLoaderTree(parallelRoute)

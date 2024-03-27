@@ -73,7 +73,10 @@ export async function exportAppPage(
           `Page with dynamic = "error" encountered dynamic data method on ${path}.`
         )
       }
-      const { staticBailoutInfo = {} } = metadata
+      // @ts-ignore
+      const { staticBailoutInfo = {}, missingSlots } = metadata
+
+      console.log('app-page', page, missingSlots)
 
       if (revalidate === 0 && debugOutput && staticBailoutInfo?.description) {
         logDynamicUsageWarning({

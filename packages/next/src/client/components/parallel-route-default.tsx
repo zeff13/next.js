@@ -10,9 +10,7 @@ export const PARALLEL_ROUTE_DEFAULT_PATH =
 const PARALLEL_ROUTE_ERROR = 'PARALLEL_ROUTE_ERROR'
 
 const parallelRouteError = createNextjsWarningCustomError({
-  message:
-    'No default component was found for a parallel route rendered on this page. Falling back to nearest NotFound boundary.\n' +
-    'Learn more: https://nextjs.org/docs/app/building-your-application/routing/parallel-routes#defaultjs\n\n',
+  message: 'Parallel Route Error',
   title: 'Parallel Route Error',
   digest: PARALLEL_ROUTE_ERROR,
 })

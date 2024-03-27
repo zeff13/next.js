@@ -39,6 +39,7 @@ import {
   turborepoTraceAccess,
   TurborepoAccessTraceResult,
 } from '../build/turborepo-access-trace'
+import { isParallelRouteError } from '../client/components/parallel-route-default'
 
 const envConfig = require('../shared/lib/runtime-config.external')
 
@@ -322,7 +323,13 @@ async function exportPageImpl(
     console.error(
       `\nError occurred prerendering page "${path}". Read more: https://nextjs.org/docs/messages/prerender-error\n`
     )
-    if (!isBailoutToCSRError(err)) {
+    if (!isBailoutToCSRError(err) && !isParallelRouteError(err)) {
+      console.log(
+        'logggg the stack',
+        (err as any).digest,
+        isBailoutToCSRError(err),
+        isParallelRouteError(err)
+      )
       console.error(isError(err) && err.stack ? err.stack : err)
     }
 
