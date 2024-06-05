@@ -121,22 +121,16 @@ function dispatchAction(
     reject: (reason: any) => void
   } = { resolve: setState, reject: () => {} }
 
-  // most of the action types are async with the exception of restore
-  // it's important that restore is handled quickly since it's fired on the popstate event
-  // and we don't want to add any delay on a back/forward nav
-  // this only creates a promise for the async actions
-  if (payload.type !== ACTION_RESTORE) {
-    // Create the promise and assign the resolvers to the object.
-    const deferredPromise = new Promise<AppRouterState>((resolve, reject) => {
-      resolvers = { resolve, reject }
-    })
+  // Create the promise and assign the resolvers to the object.
+  const deferredPromise = new Promise<AppRouterState>((resolve, reject) => {
+    resolvers = { resolve, reject }
+  })
 
-    startTransition(() => {
-      // we immediately notify React of the pending promise -- the resolver is attached to the action node
-      // and will be called when the associated action promise resolves
-      setState(deferredPromise)
-    })
-  }
+  startTransition(() => {
+    // we immediately notify React of the pending promise -- the resolver is attached to the action node
+    // and will be called when the associated action promise resolves
+    setState(deferredPromise)
+  })
 
   const newAction: ActionQueueNode = {
     payload,
