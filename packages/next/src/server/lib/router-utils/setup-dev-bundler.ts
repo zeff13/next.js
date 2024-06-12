@@ -91,6 +91,7 @@ export type SetupOpts = {
   >
   nextConfig: NextConfigComplete
   port: number
+  onCleanup: (listener: () => Promise<void>) => void
 }
 
 export type ServerFields = {
